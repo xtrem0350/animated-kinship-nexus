@@ -32,6 +32,8 @@ export interface FamilyMedia {
   description: string | null;
   date_taken: string | null;
   location: string | null;
+  type: string; // Ajouté pour la compatibilité avec MediaItem
+  url: string;   // Ajouté pour la compatibilité avec MediaItem
 }
 
 export interface FamilyRelationship {
@@ -78,7 +80,12 @@ export const useFamilyData = () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data;
+      // Transformer les données pour la compatibilité
+      return data.map(item => ({
+        ...item,
+        type: item.media_type,
+        url: item.media_url
+      }));
     },
   });
 
@@ -116,12 +123,31 @@ export const useFamilyData = () => {
   const addFamilyMember = async (memberData: Partial<FamilyMember>) => {
     if (!user) throw new Error('Utilisateur non connecté');
 
+    // S'assurer que first_name et last_name sont présents
+    if (!memberData.first_name || !memberData.last_name) {
+      throw new Error('Le prénom et le nom sont requis');
+    }
+
+    // Nettoyer les données pour la base de données
+    const cleanedData = {
+      first_name: memberData.first_name,
+      last_name: memberData.last_name,
+      birth_date: memberData.birth_date || null,
+      death_date: memberData.death_date || null,
+      birth_place: memberData.birth_place || null,
+      current_location: memberData.current_location || null,
+      occupation: memberData.occupation || null,
+      phone_number: memberData.phone_number || null,
+      email: memberData.email || null,
+      bio: memberData.bio || null,
+      profile_image_url: memberData.profile_image_url || null,
+      gender: memberData.gender || null,
+      added_by: user.id,
+    };
+
     const { data, error } = await supabase
       .from('family_members')
-      .insert([{
-        ...memberData,
-        added_by: user.id,
-      }])
+      .insert([cleanedData])
       .select()
       .single();
 
