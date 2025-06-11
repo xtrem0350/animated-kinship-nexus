@@ -26,14 +26,14 @@ export interface FamilyMember {
 
 export interface FamilyMedia {
   id: string;
-  media_type: string;
+  media_type: 'photo' | 'video' | 'document';
   media_url: string;
   title: string | null;
   description: string | null;
   date_taken: string | null;
   location: string | null;
-  type: string; // Ajouté pour la compatibilité avec MediaItem
-  url: string;   // Ajouté pour la compatibilité avec MediaItem
+  type: 'image' | 'video';
+  url: string;
 }
 
 export interface FamilyRelationship {
@@ -83,7 +83,7 @@ export const useFamilyData = () => {
       // Transformer les données pour la compatibilité
       return data.map(item => ({
         ...item,
-        type: item.media_type,
+        type: item.media_type === 'photo' ? 'image' as const : 'video' as const,
         url: item.media_url
       }));
     },

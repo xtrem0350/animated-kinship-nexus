@@ -96,7 +96,7 @@ const Auth = () => {
           <div className="mx-auto h-16 w-16 bg-green-600 rounded-full flex items-center justify-center">
             <Users className="h-8 w-8 text-white" />
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Familiale Tree</h2>
+          <h2 className="mt-6 text-3xl font-bold text-gray-900">Familiale Tree par Thierry Gogo</h2>
           <p className="mt-2 text-sm text-gray-600">
             {isLogin ? 'Connectez-vous à votre arbre généalogique' : 'Rejoignez votre famille sur Familiale Tree'}
           </p>
