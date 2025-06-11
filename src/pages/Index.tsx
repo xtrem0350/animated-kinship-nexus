@@ -221,6 +221,7 @@ const Index: React.FC = () => {
           person={{
             ...selectedPerson,
             name: `${selectedPerson.first_name} ${selectedPerson.last_name}`,
+            birthDate: selectedPerson.birth_date || '',
             media: selectedPerson.media || []
           }}
           onClose={() => setShowMediaGallery(false)}

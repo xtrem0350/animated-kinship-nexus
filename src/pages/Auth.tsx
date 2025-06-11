@@ -6,9 +6,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Users, Mail, Lock, User, Phone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import FamilyRegistrationForm from '@/components/FamilyRegistrationForm';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [showFamilyValidation, setShowFamilyValidation] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -42,23 +44,13 @@ const Auth = () => {
           description: "Vous êtes maintenant connecté.",
         });
       } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: redirectUrl,
-            data: {
-              first_name: firstName,
-              last_name: lastName,
-              name: `${firstName} ${lastName}`,
-            }
-          }
-        });
-        if (error) throw error;
-        toast({
-          title: "Inscription réussie",
-          description: "Vérifiez votre email pour confirmer votre compte.",
-        });
+        // Pour l'inscription, passer à l'étape de validation familiale
+        if (!firstName.trim() || !lastName.trim() || !email.trim() || !password.trim()) {
+          throw new Error('Tous les champs sont requis');
+        }
+        setShowFamilyValidation(true);
+        setLoading(false);
+        return;
       }
     } catch (error: any) {
       toast({
@@ -88,6 +80,43 @@ const Auth = () => {
       });
     }
   };
+
+  const handleFamilyValidationBack = () => {
+    setShowFamilyValidation(false);
+  };
+
+  const handleFamilyValidationSuccess = () => {
+    toast({
+      title: "Demande soumise",
+      description: "Votre demande d'inscription a été soumise avec succès.",
+    });
+    setShowFamilyValidation(false);
+    setIsLogin(true);
+    // Réinitialiser les champs
+    setEmail('');
+    setPassword('');
+    setFirstName('');
+    setLastName('');
+  };
+
+  if (showFamilyValidation) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center p-4">
+        <div className="max-w-2xl w-full">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <FamilyRegistrationForm
+              email={email}
+              password={password}
+              firstName={firstName}
+              lastName={lastName}
+              onBack={handleFamilyValidationBack}
+              onSuccess={handleFamilyValidationSuccess}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center p-4">
@@ -199,7 +228,7 @@ const Auth = () => {
               className="w-full bg-green-600 hover:bg-green-700"
               size="lg"
             >
-              {loading ? 'Chargement...' : isLogin ? 'Se connecter' : "S'inscrire"}
+              {loading ? 'Chargement...' : isLogin ? 'Se connecter' : "Continuer l'inscription"}
             </Button>
           </form>
 
